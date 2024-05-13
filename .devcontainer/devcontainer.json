@@ -23,10 +23,11 @@
     "customizations": {
         "vscode": {
             "extensions": [
-                "golang.Go",
-                "GitHub.copilot",
-                "GitHub.copilot-chat"
-            ]
+				"golang.Go",
+				"GitHub.copilot",
+				"GitHub.copilot-chat",
+				"redhat.ansible"
+			]
         }
     }
 
