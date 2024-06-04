@@ -131,3 +131,12 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
     storage_account_uri = azurerm_storage_account.my_storage_account.primary_blob_endpoint
   }
 }
+
+resource "local_file" "inventory" {
+  content  = <<EOT
+    %{for k, v in azurerm_linux_virtual_machine.my_terraform_vm}
+    ${k} ${v.public_ip_address}
+    %{endfor}
+    EOT
+  filename = "${path.module}/inventory"
+}
