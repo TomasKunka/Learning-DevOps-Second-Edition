@@ -4,3 +4,6 @@
 **/result-tests-local.xml
 **/.vagrant
 **/vendor
+
+.venv
+venv
