@@ -28,7 +28,10 @@
 				"GitHub.copilot",
 				"GitHub.copilot-chat",
 				"redhat.ansible"
-			]
+			],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh"
+            }
         }
     }
 
