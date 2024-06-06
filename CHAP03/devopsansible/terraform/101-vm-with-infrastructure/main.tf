@@ -2,6 +2,10 @@ locals {
   hosts = toset(["webserver1", "webserver2", "database1"])
 }
 
+data "http" "myip" {
+  url = "https://api.ipify.org/"
+}
+
 resource "random_pet" "rg_name" {
   prefix = var.resource_group_name_prefix
 }
@@ -50,7 +54,7 @@ resource "azurerm_network_security_group" "my_terraform_nsg" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = "*"
+    source_address_prefix      = "${chomp(data.http.myip.response_body)}/32"
     destination_address_prefix = "*"
   }
 }
@@ -107,7 +111,7 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
   eviction_policy       = "Deallocate"
 
   os_disk {
-    name                 = "myOsDisk"
+    name                 = "myOsDisk-${each.key}"
     caching              = "ReadWrite"
     storage_account_type = "Premium_LRS"
   }
@@ -124,7 +128,7 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 
   admin_ssh_key {
     username   = var.username
-    public_key = jsondecode(azapi_resource_action.ssh_public_key_gen[each.key].output).publicKey
+    public_key = azapi_resource_action.ssh_public_key_gen[each.key].output.publicKey
   }
 
   boot_diagnostics {
@@ -134,9 +138,9 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 
 resource "local_file" "inventory" {
   content  = <<EOT
-    %{for k, v in azurerm_linux_virtual_machine.my_terraform_vm}
-    ${k} ${v.public_ip_address}
-    %{endfor}
-    EOT
+%{for k, v in azurerm_linux_virtual_machine.my_terraform_vm~}
+${k} ${v.public_ip_address}
+%{endfor~}
+EOT
   filename = "${path.module}/inventory"
 }

@@ -23,11 +23,13 @@ resource "azapi_resource" "ssh_public_key" {
 }
 
 resource "local_file" "private_key" {
-  for_each = local.hosts
-  content  = jsondecode(azapi_resource_action.ssh_public_key_gen[each.key].output).privateKey
-  filename = "${path.module}/private_key_${each.key}.pem"
+  for_each             = local.hosts
+  content              = azapi_resource_action.ssh_public_key_gen[each.key].output.privateKey
+  filename             = pathexpand("~/.ssh/private_key_${each.key}.pem")
+  directory_permission = "0700"
+  file_permission      = "0400"
 }
 
 output "key_data" {
-  value = { for host in local.hosts : host => jsondecode(azapi_resource_action.ssh_public_key_gen[host].output).publicKey }
+  value = { for host in local.hosts : host => azapi_resource_action.ssh_public_key_gen[host].output.publicKey }
 }
