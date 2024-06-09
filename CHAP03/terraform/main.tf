@@ -1,5 +1,9 @@
 locals {
-  hosts = toset(["webserver1", "webserver2", "database1"])
+  host_groups = {
+    "webserver" = ["webserver1", "webserver2"]
+    "database"  = ["database1"]
+  }
+  hosts = toset(flatten(values(local.host_groups)))
 }
 
 data "http" "myip" {
@@ -138,9 +142,12 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
 
 resource "local_file" "inventory" {
   content  = <<EOT
-%{for k, v in azurerm_linux_virtual_machine.my_terraform_vm~}
-${k} ${v.public_ip_address}
+%{for group, hosts in local.host_groups~}
+[${group}]
+%{for host in hosts~}
+${host} ansible_host=${azurerm_linux_virtual_machine.my_terraform_vm[host].public_ip_address} ansible_user=${var.username} ansible_ssh_private_key_file=${local_file.private_key[host].filename}
+%{endfor~}
 %{endfor~}
 EOT
-  filename = "${path.module}/inventory"
+  filename = "${path.module}/../devopsansible/inventory"
 }
