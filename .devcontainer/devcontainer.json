@@ -6,9 +6,7 @@
 	"image": "mcr.microsoft.com/devcontainers/go:1-1.21-bullseye",
 	"features": {
 		"ghcr.io/devcontainers/features/terraform:1": {},
-		"ghcr.io/devcontainers/features/azure-cli:1": {},
-		"ghcr.io/devcontainers-contrib/features/ansible:2": {},
-		"ghcr.io/hspaans/devcontainer-features/ansible-lint:1": {}
+		"ghcr.io/devcontainers/features/azure-cli:1": {}
 	},
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
@@ -18,7 +16,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "go version",
+	"postCreateCommand": "sudo apt install -y pipx && pipx install --include-deps ansible",
 
 	// Configure tool-specific properties.
     "customizations": {
