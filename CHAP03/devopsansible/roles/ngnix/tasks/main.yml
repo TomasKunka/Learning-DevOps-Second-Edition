@@ -1,5 +1,14 @@
-- name: install and check nginx latest version
-  apt: name=nginx state=latest
-- name: start nginx
-  service: name=nginx state=started
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
 
+- name: Install and check nginx latest version
+  apt:
+    name: nginx
+    state: latest
+
+- name: Start nginx
+  service:
+    name: nginx
+    state: started
