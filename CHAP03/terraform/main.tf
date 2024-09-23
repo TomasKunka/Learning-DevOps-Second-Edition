@@ -4,6 +4,9 @@ locals {
     "database"  = ["database1"]
   }
   hosts = toset(flatten(values(local.host_groups)))
+  reverse_host_groups = merge([for group, hosts in local.host_groups :
+    { for host in hosts : host => group }
+  ]...)
 }
 
 data "http" "myip" {
@@ -113,6 +116,9 @@ resource "azurerm_linux_virtual_machine" "my_terraform_vm" {
   size                  = "Standard_DS1_v2"
   priority              = "Spot"
   eviction_policy       = "Deallocate"
+  tags = {
+    role = local.reverse_host_groups[each.key]
+  }
 
   os_disk {
     name                 = "myOsDisk-${each.key}"
